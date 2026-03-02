@@ -13,14 +13,9 @@ try:
 except Exception:
     HAS_MAMBA = False
 
-
-# ============================================================
-# Stage I: Adaptive Spatio-Temporal Encoding & Alignment
-# ============================================================
-
 class FrequencyAdaptivePositionalEncoding(nn.Module):
     """
-    FAP Encoding - Equation 5.
+    FAP Encoding .
     PE_m(t, 2i)   = sin(t * omega_m / f_m^(2i/d))
     PE_m(t, 2i+1) = cos(t * omega_m / f_m^(2i/d))
     omega_m and f_m are learnable per modality.
@@ -48,11 +43,6 @@ class FrequencyAdaptivePositionalEncoding(nn.Module):
 
 
 class TemporalScaleAwareEmbedding(nn.Module):
-    """
-    TSA Embedding - Equations 6-7.
-    X_m^temp = W_emb * X_m + PE_m(t) + TE_m(delta_t)
-    TE_m(delta_t) = tanh(W_te * [log(delta_t+1), delta_t/delta_t_max])
-    """
     def __init__(self, input_dim, d_model):
         super().__init__()
         self.emb  = nn.Linear(input_dim, d_model)
@@ -79,10 +69,6 @@ class TemporalScaleAwareEmbedding(nn.Module):
 
 
 class HierarchicalMultiScaleGCN(nn.Module):
-    """
-    Adaptive Multi-Scale Adjacency + Hierarchical GCN - Equations 8-9.
-    Uses K spatial scales and L graph convolution layers.
-    """
     def __init__(self, d_model, num_nodes, num_scales=3, num_layers=3, dropout=0.1):
         super().__init__()
         self.K = num_scales
@@ -158,11 +144,6 @@ class HierarchicalMultiScaleGCN(nn.Module):
 
 
 class CrossModalTemporalAligner(nn.Module):
-    """
-    Cross-Modal Temporal Attention Alignment - Equation 10.
-    Soft attention combining temporal-distance decay and semantic similarity.
-    Avoids information loss of hard interpolation.
-    """
     def __init__(self, d_model):
         super().__init__()
         self.W_Q = nn.Linear(d_model, d_model)
@@ -201,17 +182,7 @@ class CrossModalTemporalAligner(nn.Module):
         out  = (attn @ V_t).permute(0, 2, 1, 3)                    # (B,Ti,N,d)
         return out
 
-
-# ============================================================
-# Stage II: Semantic Alignment via Contrastive Representation
-# ============================================================
-
 class DualBranchDecomposition(nn.Module):
-    """
-    Dual-Branch Representation Decomposition - Equations 11-13.
-    Decomposes aligned features into shared semantics and modal-specific features.
-    Orthogonality constraint + reconstruction loss ensure proper separation.
-    """
     def __init__(self, d_model, num_modalities):
         super().__init__()
         M = num_modalities
@@ -259,10 +230,6 @@ class DualBranchDecomposition(nn.Module):
 
 
 class UnifiedSemanticSpaceProjection(nn.Module):
-    """
-    USSP - Equations 14-15.
-    Multi-layer nonlinear projection onto unit hypersphere S^{d-1}.
-    """
     def __init__(self, d_model, num_layers=2):
         super().__init__()
         layers = []
@@ -276,7 +243,6 @@ class UnifiedSemanticSpaceProjection(nn.Module):
 
 
 class IntraModalCL(nn.Module):
-    """Intra-Modal Contrastive Loss - Equations 16-17."""
     def __init__(self, d_model, d_z=128, tau=0.1):
         super().__init__()
         self.tau  = tau
@@ -302,7 +268,6 @@ class IntraModalCL(nn.Module):
 
 
 class InterModalCL(nn.Module):
-    """Inter-Modal Contrastive Loss - Equation 18."""
     def __init__(self, tau=0.1):
         super().__init__()
         self.tau = tau
@@ -341,7 +306,6 @@ class InterModalCL(nn.Module):
 
 
 class InstanceLevelCL(nn.Module):
-    """Instance-Level Contrastive Loss - Equation 19."""
     def __init__(self, d_model, tau=0.1):
         super().__init__()
         self.tau  = tau
@@ -373,10 +337,6 @@ class InstanceLevelCL(nn.Module):
         return F.cross_entropy(sim, labels)
 
 
-# ============================================================
-# Stage III: Dynamic Fusion via Selective GCN-Mamba
-# ============================================================
-
 class _GRUFallback(nn.Module):
     """GRU fallback when Mamba is unavailable."""
     def __init__(self, d_model, **kwargs):
@@ -389,11 +349,6 @@ class _GRUFallback(nn.Module):
 
 
 class MambaTemporalBlock(nn.Module):
-    """
-    Mamba SSM block for O(T) temporal modelling - Equation 22.
-    Input-dependent time-step Delta_t is the core selectivity mechanism.
-    Falls back to GRU if mamba_ssm is not installed.
-    """
     def __init__(self, d_model, d_state=None, expand=2):
         super().__init__()
         if d_state is None:
@@ -411,10 +366,6 @@ class MambaTemporalBlock(nn.Module):
 
 
 class GCNMambaLayer(nn.Module):
-    """
-    One GCN-Mamba alternating layer.
-    Spatial (GCN) → Temporal (Mamba) with residuals.
-    """
     def __init__(self, d_model, num_nodes, dropout=0.1):
         super().__init__()
         # Adaptive graph (GraphWaveNet-style)
@@ -445,11 +396,6 @@ class GCNMambaLayer(nn.Module):
 
 
 class MissingAwareFusion(nn.Module):
-    """
-    Missing-Aware Fusion (MAF) - Equation 23.
-    Dynamically blends Mamba output with global prior based on modality availability.
-    When modalities are missing, increases time step to rapidly forget missing periods.
-    """
     def __init__(self, d_model, num_modalities):
         super().__init__()
         self.M = num_modalities
@@ -479,16 +425,7 @@ class MissingAwareFusion(nn.Module):
         z_fused = alpha * z_mamba + (1.0 - alpha) * z_global
         return z_fused
 
-
-# ============================================================
-# Stage IV: Spatio-Temporal Decoding
-# ============================================================
-
 class MultiStepDecoder(nn.Module):
-    """
-    Multi-Step Prediction Decoder - Equation 24.
-    Transformer encoder used as decoder (attending to historical states).
-    """
     def __init__(self, d_model, out_steps, output_dim=1,
                  num_layers=2, num_heads=4, ff_dim=256, dropout=0.1):
         super().__init__()
@@ -513,26 +450,7 @@ class MultiStepDecoder(nn.Module):
         out    = out.reshape(B, N, self.out_steps, self.output_dim)
         return out.permute(0, 2, 1, 3)                                # (B, out, N, dout)
 
-
-# ============================================================
-# Main MSTHH Model
-# ============================================================
-
 class MSTHH(nn.Module):
-    """
-    Multi-modal Spatio-Temporal Hierarchical Heterogeneity Network.
-
-    Input x: (B, T, N, C) where the feature layout is:
-        x[..., :num_modalities]          -- traffic features (flow, speed, OCC, ...)
-        x[..., num_modalities]           -- time-of-day  (fractional 0–1, if tod=True)
-        x[..., num_modalities+1]         -- day-of-week  (integer 0–6,    if dow=True)
-
-    For the EXISTING single-modality data format [flow, tod, dow]:
-        Set num_modalities=1.  The tod index will be 1, dow index will be 2.
-
-    For true multi-modal PEMS data [flow, speed, OCC, tod, dow]:
-        Set num_modalities=3.  The tod index will be 3, dow index will be 4.
-    """
 
     def __init__(
         self,
@@ -642,12 +560,7 @@ class MSTHH(nn.Module):
 
     # ----------------------------------------------------------------
     def forward(self, x, modal_mask=None):
-        """
-        Returns:
-            Training:  (pred, L_cl, L_ortho, L_recon)
-            Inference: pred
-        pred shape: (B, out_steps, N, output_dim)
-        """
+
         B, T, N, C = x.shape
         M = self.M
 
@@ -742,12 +655,6 @@ class MSTHH(nn.Module):
     # ----------------------------------------------------------------
     def compute_total_loss(self, pred, y_true, L_cl, L_ortho, L_recon,
                             criterion, epoch, total_epochs):
-        """
-        Adaptive multi-task objective - Equations 25-27.
-        total = w1/(2*s1^2)*L_task + w2/(2*s2^2)*L_CL + w3/(2*s3^2)*L_reg
-                + log(s1*s2*s3)
-        sigma1,2,3 are jointly optimised with the model parameters.
-        """
         # w2 scheduling (Eq.27)
         E_warmup = max(total_epochs // 10, 1)
         E_decay  = max(total_epochs // 3, 1)
