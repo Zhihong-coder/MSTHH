@@ -5,7 +5,7 @@ Zhihong Wanga, Wei Lia,∗, Zhuoxuan Lianga, Junhui Jianga, Xiaohua Jiab and Mou
 
 Performance on Traffic Forecasting Benchmarks
 
-![performance](https://github.com/Zhihong-coder/MSTHH/blob/master/picture/performa.png)
+![performance](https://github.com/Zhihong-coder/MSTHH/blob/master/picture/performance.png)
 ## Required Packages
 ```bash
 pytorch>=1.11
