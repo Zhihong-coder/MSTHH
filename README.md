@@ -1,7 +1,7 @@
 # MSTHH: A Unified Framework for Asynchronous and Heterogeneous Multimodal Traffic Prediction
 Zhihong Wanga, Wei Lia,∗, Zhuoxuan Lianga, Junhui Jianga, Xiaohua Jiab and Moustafa Youssefc
 
-![MSTHH Architecture](MSTHH_architecture.png)
+![MSTHH Architecture]([MSTHH_architecture.png](https://github.com/Zhihong-coder/MSTHH/tree/master/picture)
 
 Performance on Traffic Forecasting Benchmarks
 
