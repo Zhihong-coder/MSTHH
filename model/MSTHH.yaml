@@ -1,7 +1,7 @@
 # =========================================================================
 # MSTHH Configuration
-# num_modalities=1  →  existing single-modal data  (flow + tod + dow, C=3)
-# num_modalities=3  →  full multi-modal PEMS data  (flow+speed+OCC+tod+dow, C=5)
+# num_modalities=1  →  existing single-modal data  (flow + tod + dow)
+# num_modalities=3  →  full multi-modal PEMS data  (flow+speed+OCC+tod+dow)
 # =========================================================================
 
 # ── METR-LA (207 nodes, speed + flow as 2 modalities) ───────────────────
