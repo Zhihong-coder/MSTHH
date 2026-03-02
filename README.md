@@ -20,12 +20,12 @@ torchinfo
 ## Dataset
 | Dataset | # Sensors | # Time Steps | Interval | Features | Download |
 |---------|-----------|--------------|----------|----------|----------|
-| **PEMS03** | 358 | 26,208 | 5 min | Flow | [Download PEMS03](https://github.com/guoshnBJTU/ASTGNN/tree/main/data) |
+| **PEMS03** | 358 | 26,208 | 5 min | Flow, Speed, OCC | [Download PEMS03](https://github.com/guoshnBJTU/ASTGNN/tree/main/data) |
 | **PEMS04** | 307 | 16,992 | 5 min | Flow, Speed, OCC | [Download PEMS04](https://github.com/guoshnBJTU/ASTGNN/tree/main/data) |
 | **PEMS07** | 883 | 28,224 | 5 min | Flow, Speed, OCC | [Download PEMS07](https://github.com/guoshnBJTU/ASTGNN/tree/main/data) |
 | **PEMS08** | 170 | 17,856 | 5 min | Flow, Speed, OCC | [Download PEMS08](https://github.com/guoshnBJTU/ASTGNN/tree/main/data) |
-| **METR-LA** | 207 | 34,272 | 5 min | Speed | [Download METR-LA](https://github.com/liyaguang/DCRNN) |
-| **PEMS-BAY** | 325 | 52,116 | 5 min | Speed | [Download PEMS-BAY](https://github.com/liyaguang/DCRNN) |
+| **METR-LA** | 207 | 34,272 | 5 min | Flow, Speed | [Download METR-LA](https://github.com/liyaguang/DCRNN) |
+| **PEMS-BAY** | 325 | 52,116 | 5 min | Flow, Speed | [Download PEMS-BAY](https://github.com/liyaguang/DCRNN) |
 
 The real-world PEMS datasets used in our experiments are available at the official portal: [https://pems.dot.ca.gov/](https://pems.dot.ca.gov/)
 
